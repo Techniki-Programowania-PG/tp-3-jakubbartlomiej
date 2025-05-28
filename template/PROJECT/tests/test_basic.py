@@ -13,3 +13,6 @@ def test_add():
 
 def test_sub():
     assert m.subtract(1, 2) == -1
+
+def test_wypisz():
+    print("Hello world")
