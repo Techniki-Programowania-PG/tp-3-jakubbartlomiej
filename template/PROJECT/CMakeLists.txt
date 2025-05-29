@@ -25,4 +25,15 @@ target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
 # The install directory is the output (wheel) directory
 install(TARGETS _core DESTINATION scikit_build_example)
 
-add_subdirectory(matplotplusplus)
+# Matplot++ instalation
+include(FetchContent)
+
+FetchContent_Declare(
+  matplotplusplus
+  GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus.git
+  GIT_TAG        master
+)
+
+FetchContent_MakeAvailable(matplotplusplus)
+
+target_link_libraries(_core PRIVATE matplot)
