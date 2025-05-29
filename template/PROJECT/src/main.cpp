@@ -1,3 +1,4 @@
+//command to rebuild this project: pip install --no-cache-dir --force-reinstall .
 #include <pybind11/pybind11.h>
 #include <matplot/matplot.h>
 #include <cmath>
