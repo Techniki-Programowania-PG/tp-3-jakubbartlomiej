@@ -91,37 +91,31 @@ namespace py = pybind11;
 PYBIND11_MODULE(_core, m)
 {
 	m.doc() = R"pbdoc(
-        Pybind11 example plugin
-        -----------------------
-
-        .. currentmodule:: scikit_build_example
-
-        .. autosummary::
-           :toctree: _generate
-
-           add
-           subtract
+        Pybind11 math visualisation plugin
+        ----------------------------------
     )pbdoc";
 
-	m.def("add", &add,
+	m.def("sinPattern", &sinPattern, py::arg("frequency"), py::arg("start"), py::arg("end"), py::arg("samples"),
 		R"pbdoc(
-        Add two numbers
-
-        Some other explanation about the add function.
+        Draw a sinus wave with given arguments
 		)pbdoc"
 	);
 
-	m.def("sinPattern", &sinPattern,
+	m.def("cosPattern", &cosPattern, py::arg("frequency"), py::arg("start"), py::arg("end"), py::arg("samples"),
 		R"pbdoc(
-        Draw a sin wave with given arguments
+        Draw a cosinus wave with given arguments
 		)pbdoc"
 	);
 
-	m.def("subtract", [](int i, int j) { return i - j; },
+	m.def("squarePattern", &squarePattern, py::arg("frequency"), py::arg("start"), py::arg("end"), py::arg("samples"),
 		R"pbdoc(
-        Subtract two numbers
+        Draw a square wave with given arguments
+		)pbdoc"
+	);
 
-        Some other explanation about the subtract function.
+	m.def("sawtoothPattern", &sawtoothPattern, py::arg("frequency"), py::arg("start"), py::arg("end"), py::arg("samples"),
+		R"pbdoc(
+        Draw a sawtooth wave with given arguments
 		)pbdoc"
 	);
 }

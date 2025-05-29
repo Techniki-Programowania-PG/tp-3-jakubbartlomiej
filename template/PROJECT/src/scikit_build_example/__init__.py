@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-from ._core import __doc__, add, sinPattern, subtract
+from ._core import __doc__, sinPattern, cosPattern, squarePattern, sawtoothPattern
 
-__all__ = ["__doc__", "add", "sinPattern", "subtract"]
+__all__ = ["__doc__", "sinPattern", "cosPattern", "squarePattern", "sawtoothPattern"]
