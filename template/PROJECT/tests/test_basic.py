@@ -15,7 +15,7 @@ def test_sawtooth():
     m.showPattern(m.sawtoothPattern(1, -3.1415, 3.1415, 1000))
 
 def test_dft():
-    m.showDFTPattern(m.discreteFourierTransform(m.sinPattern(0.16, 0, 6.28, 1000)))
+    m.showDFTPattern(m.discreteFourierTransform(m.sinPattern(10, 0, 3.14, 1000)))
 
 def test_inverse_dft():
-    m.showPattern(m.inverseDiscreteFourierTransform(m.discreteFourierTransform(m.sinPattern(0.16, 0, 6.28, 1000))))
+    m.inverseDiscreteFourierTransform(m.discreteFourierTransform(m.sinPattern(10, 0, 3.14, 1000)))
