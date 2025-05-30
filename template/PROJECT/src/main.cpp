@@ -70,37 +70,40 @@ std::vector<std::pair<double, double>> sawtoothPattern(double frequency, double 
 
 std::vector<std::pair<double, std::pair<double, double>>> discreteFourierTransform(const std::vector<std::pair<double, double>>& patternSamples)
 {
-	std::vector<std::pair<double, std::pair<double, double>>> dftResult;
 	size_t N = patternSamples.size();
-	dftResult.reserve(N);
-	for (size_t k = 0; k < N; k++)
-	{
-		double real = 0.0;
-		double imag = 0.0;
-		for (size_t n = 0; n < N; n++)
-		{
-			double angle = 2 * PI_CONST * k * n / N;
-			real += patternSamples[n].second * std::cos(angle);
-			imag += patternSamples[n].second * -std::sin(angle);
+	std::vector<std::pair<double, std::pair<double, double>>> result;
+	if (N == 0) return result;
+
+	// Assumes uniform sampling: calculate deltaT from first two samples
+	double deltaT = patternSamples[1].first - patternSamples[0].first;
+	double Fs = 1.0 / deltaT;
+
+	for (size_t k = 0; k < N; ++k) {
+		std::complex<double> sum(0.0, 0.0);
+		for (size_t n = 0; n < N; ++n) {
+			double y = patternSamples[n].second;
+			double angle = -2.0 * PI_CONST * static_cast<double>(k * n) / static_cast<double>(N);
+			sum += y * std::exp(std::complex<double>(0, angle));
 		}
-		dftResult.emplace_back(std::make_pair(static_cast<double>(k), std::make_pair(real, imag)));
+		double frequency = k * Fs / N;
+		result.emplace_back(frequency, std::make_pair(sum.real(), sum.imag()));
 	}
-	return dftResult;
+	return result;
 }
 
 void showDFTPattern(const std::vector<std::pair<double, std::pair<double, double>>>& dftPattern)
 {
-	std::vector<double> x(dftPattern.size()), yReal(dftPattern.size()), yImag(dftPattern.size());
+	std::vector<double> x(dftPattern.size());
+	std::vector<double> yReal(dftPattern.size());
 	for (size_t i = 0; i < dftPattern.size(); ++i)
 	{
 		x[i] = dftPattern[i].first;
 		yReal[i] = dftPattern[i].second.first;
-		yImag[i] = dftPattern[i].second.second;
 	}
 	matplot::figure();
 	matplot::plot(x, yReal);
 	matplot::title("Real Part of DFT");
-	matplot::xlabel("Frequency Index");
+	matplot::xlabel("Frequency (Hz)");
 	matplot::ylabel("Amplitude");
 	matplot::show();
 }
@@ -108,23 +111,50 @@ void showDFTPattern(const std::vector<std::pair<double, std::pair<double, double
 void inverseDiscreteFourierTransform(const std::vector<std::pair<double, std::pair<double, double>>>& realImagPattern)
 {
 	size_t N = realImagPattern.size();
+	if (N == 0) return;
+
 	std::vector<double> functionSamples(N);
 	std::vector<double> x(N);
-	for (size_t n = 0; n < N; n++)
+
+	double deltaT = 1.0;
+	double startT = 0.0;
+	if (N > 1)
 	{
-		x[n] = realImagPattern[n].first;
-		functionSamples[n] = 0.0;
-		for (size_t k = 0; k < N; k++)
+		double freq0 = realImagPattern[0].first;
+		double freq1 = realImagPattern[1].first;
+		if (freq1 > freq0)
 		{
-			double angle = 2 * PI_CONST * k * n / N;
-			functionSamples[n] += realImagPattern[k].second.first * std::cos(angle) - realImagPattern[k].second.second * std::sin(angle);
+			double Fs = freq1 * N;
+			if (Fs > 0.0)
+				deltaT = 1.0 / Fs;
 		}
-		functionSamples[n] /= N;
+	}
+	std::vector<std::vector<std::complex<double>>> expTable(N, std::vector<std::complex<double>>(N));
+	for (size_t n = 0; n < N; ++n)
+	{
+		for (size_t k = 0; k < N; ++k)
+		{
+			double angle = 2.0 * PI_CONST * static_cast<double>(k * n) / static_cast<double>(N);
+			expTable[n][k] = std::exp(std::complex<double>(0, angle));
+		}
+	}
+
+	for (size_t n = 0; n < N; ++n)
+	{
+		std::complex<double> sum(0.0, 0.0);
+		for (size_t k = 0; k < N; ++k)
+		{
+			const auto& pair = realImagPattern[k].second;
+			std::complex<double> Xk(pair.first, pair.second);
+			sum += Xk * expTable[n][k];
+		}
+		functionSamples[n] = sum.real() / static_cast<double>(N);
+		x[n] = startT + n * deltaT;
 	}
 	matplot::figure();
 	matplot::plot(x, functionSamples);
 	matplot::title("Inverse DFT");
-	matplot::xlabel("Sample Index");
+	matplot::xlabel("Time");
 	matplot::ylabel("Amplitude");
 	matplot::show();
 }
