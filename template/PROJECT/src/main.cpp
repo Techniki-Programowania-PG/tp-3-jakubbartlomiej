@@ -9,11 +9,6 @@
 
 constexpr double PI_CONST = 3.14159265358979;
 
-int add(int i, int j)
-{
-	return i + j;
-}
-
 std::vector<double> linspace(double start, double end, size_t num)
 {
 	std::vector<double> result(num);
